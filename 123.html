@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <title>精品车库展示</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, #0c0c0c 0%, #1a1a1a 25%, #0f0f0f 50%, #1c1c1c 75%, #0a0a0a 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* 动态背景粒子效果 */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.02) 0%, transparent 50%),
+                radial-gradient(circle at 40% 80%, rgba(120, 119, 198, 0.02) 0%, transparent 50%);
+            animation: float 20s ease-in-out infinite;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            33% { transform: translateY(-10px) rotate(1deg); }
+            66% { transform: translateY(5px) rotate(-1deg); }
+        }
+
+        .header {
+            margin: 40px 0 60px 0;
+            text-align: center;
+            position: relative;
+        }
+
+        .main-title {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 700;
+            background: linear-gradient(135deg, #ffffff 0%, #e0e0e0 25%, #f5f5f5 50%, #d0d0d0 75%, #ffffff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-align: center;
+            letter-spacing: -0.02em;
+            margin-bottom: 16px;
+            position: relative;
+            animation: titleGlow 3s ease-in-out infinite alternate;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 300;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        @keyframes titleGlow {
+            from { filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.3)); }
+            to { filter: drop-shadow(0 0 30px rgba(255, 255, 255, 0.5)); }
+        }
+
+        .vehicle-card {
+            width: min(90%, 1200px);
+            margin: 0 auto 40px auto;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .vehicle-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: shimmer 3s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 1; }
+        }
+
+        .vehicle-card:hover {
+            transform: translateY(-8px);
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.2);
+            box-shadow: 
+                0 32px 64px rgba(0, 0, 0, 0.4),
+                0 16px 32px rgba(255, 255, 255, 0.1);
+        }
+
+        .card-header {
+            padding: 32px 40px 24px 40px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .card-header:hover::before {
+            left: 100%;
+        }
+
+        .vehicle-title {
+            font-size: 2rem;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 8px;
+            letter-spacing: -0.01em;
+        }
+
+        .vehicle-year {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.6);
+            font-weight: 400;
+        }
+
+        .expand-indicator {
+            position: absolute;
+            right: 40px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 24px;
+            height: 24px;
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .expand-indicator::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            border-top: 2px solid rgba(255, 255, 255, 0.6);
+            border-right: 2px solid rgba(255, 255, 255, 0.6);
+            transform: rotate(135deg);
+            transition: all 0.3s ease;
+        }
+
+        .vehicle-card.expanded .expand-indicator {
+            transform: translateY(-50%) rotate(180deg);
+            border-color: rgba(255, 255, 255, 0.8);
+        }
+
+        .card-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .vehicle-card.expanded .card-content {
+            max-height: none;
+            overflow: visible;
+        }
+
+        .content-inner {
+            padding: 40px;
+        }
+
+        .image-showcase {
+            position: relative;
+            margin-bottom: 40px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%);
+            border-radius: 20px;
+            padding: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .vehicle-image {
+            width: 100%;
+            height: auto;
+            border-radius: 16px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            filter: brightness(0.95) contrast(1.1);
+            position: relative;
+            z-index: 1;
+        }
+
+        .vehicle-image:hover {
+            transform: scale(1.02);
+            filter: brightness(1) contrast(1.15);
+            box-shadow: 
+                0 24px 48px rgba(0, 0, 0, 0.3),
+                0 12px 24px rgba(255, 255, 255, 0.1);
+        }
+
+        .specs-table {
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .table-header {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.04) 100%);
+            padding: 20px 0;
+            text-align: center;
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #ffffff;
+            letter-spacing: 0.02em;
+        }
+
+        .spec-row {
+            display: flex;
+            padding: 16px 24px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            transition: background-color 0.2s ease;
+        }
+
+        .spec-row:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .spec-row:last-child {
+            border-bottom: none;
+        }
+
+        .spec-label {
+            flex: 1;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.95rem;
+        }
+
+        .spec-value {
+            flex: 2;
+            color: #ffffff;
+            font-size: 0.95rem;
+            font-weight: 400;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .card-header {
+                padding: 24px 24px 20px 24px;
+            }
+            
+            .content-inner {
+                padding: 24px;
+            }
+
+            .vehicle-title {
+                font-size: 1.6rem;
+            }
+
+            .expand-indicator {
+                right: 24px;
+            }
+
+            .spec-row {
+                flex-direction: column;
+                gap: 8px;
+                padding: 16px 20px;
+            }
+
+            .spec-label {
+                font-weight: 600;
+                color: rgba(255, 255, 255, 0.9);
+            }
+        }
+
+        /* 禁用右键菜单 */
+        img {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1 class="main-title">精品车库</h1>
+        <p class="subtitle">Premium Collection</p>
+    </div>
+
+    <div class="vehicle-card" id="suzuki-card">
+        <div class="card-header" onclick="toggleCard('suzuki-card')">
+            <div>
+                <h2 class="vehicle-title">铃木 GSX250</h2>
+                <p class="vehicle-year">2022年款</p>
+            </div>
+            <div class="expand-indicator"></div>
+        </div>
+        
+        <div class="card-content">
+            <div class="content-inner">
+                <div class="image-showcase">
+                    <img src="https://i.ibb.co/VY96bmbk/IMG-20250619-002923.png" alt="铃木 GSX250" class="vehicle-image" loading="lazy">
+                </div>
+                
+                <div class="specs-table">
+                    <div class="table-header">技术规格</div>
+                    
+                    <div class="spec-row">
+                        <span class="spec-label">品牌</span>
+                        <span class="spec-value">铃木 (Suzuki)</span>
+                    </div>
+                    <div class="spec-row">
+                        <span class="spec-label">产地</span>
+                        <span class="spec-value">日本</span>
+                    </div>
+                    <div class="spec-row">
+                        <span class="spec-label">型号</span>
+                        <span class="spec-value">GSX250</span>
+                    </div>
+                    <div class="spec-row">
+                        <span class="spec-label">年份</span>
+                        <span class="spec-value">2022</span>
+                    </div>
+                    <div class="spec-row">
+                        <span class="spec-label">引擎类型</span>
+                        <span class="spec-value">双缸直列发动机</span>
+                    </div>
+                    <div class="spec-row">
+                        <span class="spec-label">排量</span>
+                        <span class="spec-value">248cc</span>
+                    </div>
+                    <div class="spec-row">
+                        <span class="spec-label">最大功率</span>
+                        <span class="spec-value">24.7马力 (18.4 kW) @ 8,000 rpm</span>
+                    </div>
+                    <div class="spec-row">
+                        <span class="spec-label">最大扭矩</span>
+                        <span class="spec-value">22.2 Nm @ 6,500 rpm</span>
+                    </div>
+                    <div class="spec-row">
+                        <span class="spec-label">冷却系统</span>
+                        <span class="spec-value">油冷系统</span>
+                    </div>
+                    <div class="spec-row">
+                        <span class="spec-label">变速箱</span>
+                        <span class="spec-value">6速手动变速箱</span>
+                    </div>
+                    <div class="spec-row">
+                        <span class="spec-label">传动方式</span>
+                        <span class="spec-value">链条传动</span>
+                    </div>
+                    <div class="spec-row">
+                        <span class="spec-label">最高速度</span>
+                        <span class="spec-value">约 140 km/h</span>
+                    </div>
+                    <div class="spec-row">
+                        <span class="spec-label">重量</span>
+                        <span class="spec-value">178 kg</span>
+                    </div>
+                    <div class="spec-row">
+                        <span class="spec-label">前悬挂</span>
+                        <span class="spec-value">正立式前叉</span>
+                    </div>
+                    <div class="spec-row">
+                        <span class="spec-label">后悬挂</span>
+                        <span class="spec-value">单筒后减震器</span>
+                    </div>
+                    <div class="spec-row">
+                        <span class="spec-label">前制动</span>
+                        <span class="spec-value">单 290mm 制动盘</span>
+                    </div>
+                    <div class="spec-row">
+                        <span class="spec-label">后制动</span>
+                        <span class="spec-value">单制动盘</span>
+                    </div>
+                    <div class="spec-row">
+                        <span class="spec-label">前轮胎规格</span>
+                        <span class="spec-value">110/70-17</span>
+                    </div>
+                    <div class="spec-row">
+                        <span class="spec-label">后轮胎规格</span>
+                        <span class="spec-value">140/70-17</span>
+                    </div>
+                    <div class="spec-row">
+                        <span class="spec-label">ABS系统</span>
+                        <span class="spec-value">标配</span>
+                    </div>
+                    <div class="spec-row">
+                        <span class="spec-label">防滑控制</span>
+                        <span class="spec-value">无</span>
+                    </div>
+                    <div class="spec-row">
+                        <span class="spec-label">仪表盘</span>
+                        <span class="spec-value">液晶显示屏</span>
+                    </div>
+                    <div class="spec-row">
+                        <span class="spec-label">设计风格</span>
+                        <span class="spec-value">经典街车造型</span>
+                    </div>
+                    <div class="spec-row">
+                        <span class="spec-label">外观设计</span>
+                        <span class="spec-value">简洁运动风格</span>
+                    </div>
+                    <div class="spec-row">
+                        <span class="spec-label">车架</span>
+                        <span class="spec-value">钢制梯形车架</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 禁用右键菜单
+        document.addEventListener('contextmenu', e => e.preventDefault());
+        
+        // 防止拖拽图片
+        document.addEventListener('dragstart', e => e.preventDefault());
+
+        function toggleCard(cardId) {
+            const card = document.getElementById(cardId);
+            const content = card.querySelector('.card-content');
+            
+            if (card.classList.contains('expanded')) {
+                // 收起时设置固定高度然后动画到0
+                const contentHeight = content.scrollHeight;
+                content.style.maxHeight = contentHeight + 'px';
+                
+                // 强制重绘后设置为0
+                requestAnimationFrame(() => {
+                    content.style.maxHeight = '0px';
+                });
+                
+                card.classList.remove('expanded');
+            } else {
+                // 展开时设置为实际内容高度
+                card.classList.add('expanded');
+                const contentHeight = content.scrollHeight;
+                content.style.maxHeight = contentHeight + 'px';
+                
+                // 动画完成后设置为none以允许内容自由增长
+                setTimeout(() => {
+                    if (card.classList.contains('expanded')) {
+                        content.style.maxHeight = 'none';
+                    }
+                }, 800);
+            }
+        }
+
+        // 添加页面加载动画
+        window.addEventListener('load', () => {
+            document.body.style.opacity = '0';
+            document.body.style.transition = 'opacity 0.8s ease';
+            setTimeout(() => {
+                document.body.style.opacity = '1';
+            }, 100);
+        });
+
+        // 添加平滑滚动效果
+        document.addEventListener('click', (e) => {
+            if (e.target.closest('.card-header')) {
+                setTimeout(() => {
+                    const card = e.target.closest('.vehicle-card');
+                    if (card.classList.contains('expanded')) {
+                        card.scrollIntoView({ 
+                            behavior: 'smooth', 
+                            block: 'start' 
+                        });
+                    }
+                }, 300);
+            }
+        });
+    </script>
+</body>
+</html>
